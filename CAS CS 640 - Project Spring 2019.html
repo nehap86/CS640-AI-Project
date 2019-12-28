@@ -1,0 +1,175 @@
+<html class="gr__cs_bu_edu"><head>
+<title> CS640 Homework Template: HW[x] Neha Pawar [xxx]  </title>
+<style>
+<!--
+body{
+font-size: 12.0pt;
+font-family: 'Trebuchet MS', Verdana;
+}
+p{
+font-size: 13.5pt;
+font-family: 'Trebuchet MS', Times;
+margin: 10px 10px 15px 20px;
+line-height: 1.45
+}
+h3{
+margin: 5px;
+}
+h2{
+margin: 10px;
+}
+h1{
+margin: 10px 0px 0px 20px;
+}
+div.main-body{
+align:center;
+margin: 30px;
+}
+hr{
+margin:20px 0px 20px 0px;
+}
+-->
+</style>
+</head>
+
+<body data-gr-c-s-loaded="true">
+<center>
+<a href="http://www.bu.edu"><img border="0" src="http://www.cs.bu.edu/fac/betke/images/bu-logo.gif" width="119" height="120"></a>
+</center>
+
+<h1>News-Image Classification </h1>
+<p>
+ CS 640 Final Project Report<br>
+ Team: Neha Pawar, Zhitong Wu<br>
+
+ 08-Apr-2019
+</p>
+
+<div class="main-body">
+<hr>
+<h2> Problem Definition </h2>
+<p>
+We are given a set of news images related to different kind of events. The images are labeled with whether something occured in the image, such as violence, fire and a protest. An image can have several labels if a scene contains both a protest and violence,  and it is possible an image has no label if it is not related to any events of interest to be labeled.
+<b>Our goal is to implement an AI system that predicts the labels of the image</b>. The dataset contains 40,000 images where 32,000 is for model training and 8,000 is for model testing. Also we are given an annotation txt file that has labels(“protest,” “sign,” “photo,” “fire,” “police,” “children,” “flag,” “night,” and “shouting” etc) indicating 0 or 1 for a particular image according to their presence in that image.
+</p>
+<hr>
+<h2> Method and Implementation </h2>
+<p>
+  We first determined the problem as a muti-labelling problem. Then we tried to find some code and model that works fine on the given dataset and produces meaningful
+  results on this problem. Based on these effort, we're able to reproduce the result of the original code and modify it to fit on our own project.
+</p>
+<h3>1. Architecture:</h3>
+<p>
+We are using Keras and Convolutional Neural Networks for our Project. The CNN architecture we are using is <i>SmallerVGGNet</i> a smaller and more compact version of <i>VGGNet</i> which is a classical deep convolutional network for object recognition developed and trained by Oxford's renowned Visual Geometry Group(VGG) which achieved very good performance on the ImageNet dataset. VGGNet-like architectures are characterized by:<br>
+a.) Using only 3×3 convolutional layers stacked on top of each other in increasing depth.<br>
+b.) Reducing volume size by max pooling.<br>
+c.) Fully-connected layers at the end of the network prior to a sigmoid classifier. We're using sigmoid instead of softmax because softmax is not suitable for generating multiple labels. <br>
+<center><img src="cnn_keras_smallervggnet.png"></center></p>
+
+<h3>2. Project Structure:</h3>
+<p>
+The important files we’re working with include:<br>
+<i><b>train.py :</b></i> Once we’ve acquired the data, we’ll use the train.py  script to train our classifier.<br>
+<i><b>fashion.model :</b></i> Our train.py  script will serialize our Keras model to disk. We will use this model later in the classify.py  script.<br>
+<i><b>mlb.pickle :</b></i> A scikit-learn MultiLabelBinarizer  pickle file created by train.py  — this file holds our class names in a convenient serialized data structure.<br>
+<i><b>classify.py :</b></i> In order to test our classifier, we’ve written classify.py . You should always test your classifier locally before deploying the model elsewhere.<br> <br>
+The three directories in the project are:<br>
+<i><b>news_img :</b></i> This directory holds our dataset of train and test images.  <br>
+<i><b>pyimagesearch :</b></i>  This is our module containing our Keras neural network. Because this is a module, it contains a properly formatted <i><b> __init__.py</b></i>   . The other file, <i><b>smallervggnet.py</b></i>   contains the code to assemble the neural network itself.<br>
+<i><b>examples :</b></i> some example output images that visualize our work  <br>
+
+
+
+
+<h3>3. Modifications:</h3>
+<p>
+  While keeping the SmallerVGGNet's structure unchange, we managed to use it to train our own model with different dataset and annotation structures, generating 11 probabilities
+  for different categories showed up in the dataset (For simplicity, we ignore the 'violence' label since it's a float point number instead of a binary value). Given those probabilities,
+  we use a threshold of 15% to decide whether a label should be attached to the input image and did some analysis.
+
+</p>
+
+
+
+<hr>
+
+<h2> Sample Results</h2>
+<p>
+Image a.): We see that the percentage for "protest","sign" & "group_20" is more, which also matches the  "1s" in the annotation text for this image. <br>
+Image b.): We see that the percentage for "protest","sign" & "group_20" is more, which also matches the "1s" in the annotation text for this image. </p>
+
+<table>
+<tr>
+<td> Trial<td>   Source Image </td>       <td>        Result Image</td>
+</tr>
+
+
+<tr>
+  <td> a.) </td>
+
+
+  <td> <img src="examples\test-00030.jpg" style="width:400px;height:400px;" > </td>
+  <td> <img src="examples\output\test-00030.jpg" style="width:400px;height:400px;" > </td>
+
+  </tr><br>
+  <tr>
+  <td> b.) </td>
+
+
+  <td> <img src="examples\test-00154.jpg" style="width:400px;height:400px;" > </td>
+  <td> <img src="examples\output\test-00154.jpg" style="width:400px;height:400px;" > </td>
+  </tr>
+</tbody></table>
+
+
+<hr>
+<h2> Evaluation and Analysis</h2>
+<h3>1. Train Loss Accuracy:</h3> <p>After a training process of 30 epochs, we achieved an accuracy of more than 94% on the training dataset.
+</p>
+<center><img src="plot.png"></center><br>
+
+<h3>2. Number of errors</h3>
+<p> The following pie-chart shows the percentage of correctness of the images when compared to the annotation text for the given number of errors. As per the result yeilded by our model we have approx~55% images has "0" error-which means these images are correctly
+predicted and matches the annnotation text for each label. Likewise there is "1" error-labeling which means only one label mismatchs the annotation text for that image and these are 14%~ approx. Similarly for 2-error its 10.22%,3-error its 11.78% and so on.
+</p>
+<center><img src="PieChart.png" ></center>
+
+<p><h3>3. Performance Analysis:</h3>
+<p>
+  Since the model performed much better on true negative than true positive predicting, we focused and calculated the Recall for each label for the output images.  For the convinience of analysis, we also
+  calculated the number of times that each label is annotated as 1 among 30000 training images. <br>
+</p>
+<p>
+<center><img src="Histogram.png" >
+<img src="Histogram2.png" ></center>
+</p>
+<p>a.) The first observation is that labels that corresponding to significantly more samples has much better performance than others (gp20, gp100, protest, sign). In one way, we think this means our model has a good learning effect given
+enough data; on the other hand, it also reflects that for many labels, the actual number of images that contain that label is not enough for an effective training (For example, only less than 200 images contains "children" in 30000 training images).   <br>
+</p>
+<p>b.) The second observation is that although the number of actual training data is at the same magnitude, the recall of different labels vary considerably from each other. For example, "night" and "fire" achieves very high recall while "children", "photo", and "shouting"
+perform very poorly. We think this is due to the complexity of each label. From intuition, "night" and "fire" are straightforward, whereas "photo" or "shouting" are somehow ambiguous and even human might have different opinions on some situations. If we want the model perform
+meaningfully, we definitely need more valid training data on these complex labels.<br>
+</p>
+
+<hr>
+<h2> Conclusions & Improvements</h2>
+<p>
+<p>1.)For our implementation, acurracies on labels that are fed with large amount of data are pretty acceptable. For other labels where training datas' amount is small, the performance might depend on the complexity of the label itself.<br>
+2.) Given more time, we might further test performance on different threshold, try to use GNU instead of CPU on training phase, and try to use other network structures to train our model and compare the performance. <br></p>
+
+
+
+<hr>
+<h2> Credits and Bibliography </h2>
+<p>
+https://www.pyimagesearch.com/2018/05/07/multi-label-classification-with-keras/<br>
+https://www.pyimagesearch.com/2018/04/16/keras-and-convolutional-neural-networks-cnns/<br>
+https://arxiv.org/pdf/1409.1556/<br>
+Lab notes
+
+</p>
+<hr>
+
+
+</div>
+</body></html>
